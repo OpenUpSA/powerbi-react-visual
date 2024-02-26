@@ -3,9 +3,9 @@ import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 /**
-* Circle Formatting Card
+* SiocVisual Formatting Card
 */
-declare class CircleCardSettings extends FormattingSettingsCard {
+declare class SiocVisualCardSettings extends FormattingSettingsCard {
     circleColor: formattingSettings.ColorPicker;
     circleThickness: formattingSettings.NumUpDown;
     name: string;
@@ -18,7 +18,7 @@ declare class CircleCardSettings extends FormattingSettingsCard {
 *
 */
 export declare class VisualFormattingSettingsModel extends FormattingSettingsModel {
-    circleCard: CircleCardSettings;
-    cards: CircleCardSettings[];
+    SiocVisualCard: SiocVisualCardSettings;
+    cards: SiocVisualCardSettings[];
 }
 export {};

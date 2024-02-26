@@ -1,19 +1,96 @@
-.circleCard {
-    position: relative;
-    box-sizing: border-box;
-    border: 1px solid #000;
-    border-radius: 50%;
-    min-width: 200px;
-    min-height: 200px;}
-
-p {
-    text-align: center;
-    line-height: 30px;
-    font-size: 20px;
-    font-weight: bold;
-
-    position: relative;
-    top: -30px;
-    margin: 50% 0 0 0;
+.dashboard-container {
+	display: flex;
 }
+
+.dashboard-menu {
+	flex: 0 0 25%;
+
+	
+
+}
+
+.dashboard-content {
+	flex: 1;
+
+	h2 {
+		margin-top: 0;
+		padding: 0 0 0 2em;
+	}
+}
+
+.toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em;
+
+	.toolbar-item {
+		display: flex;
+
+		margin-left: 0.5em;
+
+	}
+
+}
+
+.goal {
+	.goal-trigger {
+		color: #fff;
+		padding: 1em;
+		font-size: 12px;
+		font-weight: bold;
+		border-radius: 5px;
+		margin-bottom: 1em;
+	}
+
+	&.open {
+		.goal-content {
+			display: block;
+		}
+	}
+
+	.goal-content {
+		display: none;
+		padding: 0 1em 0.3em 1em;
+
+		font-size: 10px;
+
+		.subgoal {
+
+			.subgoal-trigger {
+				font-weight: bold;
+				border-bottom: 1px solid #ccc;
+				padding: 1em 0;
+			}
+
+			&.open {
+				.indicators {
+					display: block;
+				}
+			}
+
+			.indicators {
+				font-size: 9px;
+				display: none;
+				
+
+				.indicator {
+					padding: 0.5em 0.5em 0.5em 1em;
+
+					&.selected {
+						background-color: #333;
+						color: #fff;
+						border-radius: 5px;
+					}
+				}
+			}
+
+
+		}
+
+	}
+
+	
+}
+
 

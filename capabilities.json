@@ -1,44 +1,26 @@
 {
     "dataRoles": [
         {
-            "displayName": "Measure Data",
-            "name": "measure",
-            "kind": "Measure"
+            "name": "Goals",
+            "kind": "Grouping",
+            "displayName": "Columns"
         }
+          
     ],
-    "objects": {
-        "circle": {
-            "properties": {
-               "circleColor": {
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                },
-                "circleThickness": {
-                    "type": {
-                        "numeric": true
-                    }
-                }
-            }
-        }
-        
-    },
+    "objects": {},
     "dataViewMappings": [
         {
-            "conditions": [
-                {
-                    "measure": {
-                        "max": 1,
-                        "summarize": false
+            "table": {
+                "rows": {
+                    "for": {
+                        "in": "Goals"
+                    },
+                    "dataReductionAlgorithm": {
+                        "top": {
+                            "count": 3000
+                        }
                     }
                 }
-            ],
-            "single": {
-                "role": "measure"
             }
         }
     ],

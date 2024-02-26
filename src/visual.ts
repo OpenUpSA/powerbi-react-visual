@@ -7,12 +7,9 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
 import IViewport = powerbi.IViewport;
 
-import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
-import { VisualFormattingSettingsModel } from "./settings";
-
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { ReactCircleCard, initialState } from "./component";    
+import { SiocVisual, initialState } from "./component";    
 
 import "./../style/visual.less";
 
@@ -21,19 +18,13 @@ export class Visual implements IVisual {
     private reactRoot: React.ComponentElement<any, any>;
     private viewport: IViewport;
 
-    private formattingSettings: VisualFormattingSettingsModel;
-    private formattingSettingsService: FormattingSettingsService;
-
     constructor(options: VisualConstructorOptions) {
-        this.reactRoot = React.createElement(ReactCircleCard, {});
+        
+
+        this.reactRoot = React.createElement(SiocVisual, {});
         this.target = options.element;
-        this.formattingSettingsService = new FormattingSettingsService();
 
         ReactDOM.render(this.reactRoot, this.target);
-    }
-
-    public getFormattingModel(): powerbi.visuals.FormattingModel {
-        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
     public update(options: VisualUpdateOptions) {
@@ -44,17 +35,25 @@ export class Visual implements IVisual {
             this.viewport = options.viewport;
             const { width, height } = this.viewport;
             const size = Math.min(width, height);
+            const tableData = options.dataViews[0].table;
 
-            this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
-            const circleSettings = this.formattingSettings.circleCard;
-        
-            ReactCircleCard.update({
-                textLabel: dataView.metadata.columns[0].displayName,
-                textValue: dataView.single.value.toString(),
+            SiocVisual.update({
+                loaded: false,
+                tableData,
                 size,
-                borderWidth: circleSettings.circleThickness.value,
-                background: circleSettings.circleColor.value.value,
+                goals: [],
+                data: [],
+                indicator: '',
+                openGoals: [],
+                openSubgoals: [],
+                districts: [],
+                districtColors: [],
+                goalColors: [],
+                showLabels: true,
+                showTrends: true,
+                showTargets: true
             });
+
         } else {
             this.clear();
         }
@@ -62,6 +61,6 @@ export class Visual implements IVisual {
     }
 
     private clear() {
-        ReactCircleCard.update(initialState);
+        SiocVisual.update(initialState);
     }
 }

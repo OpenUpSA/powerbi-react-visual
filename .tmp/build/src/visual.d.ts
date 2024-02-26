@@ -7,10 +7,7 @@ export declare class Visual implements IVisual {
     private target;
     private reactRoot;
     private viewport;
-    private formattingSettings;
-    private formattingSettingsService;
     constructor(options: VisualConstructorOptions);
-    getFormattingModel(): powerbi.visuals.FormattingModel;
     update(options: VisualUpdateOptions): void;
     private clear;
 }
