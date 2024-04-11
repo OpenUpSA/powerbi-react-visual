@@ -257,6 +257,7 @@ export class SiocVisual extends React.Component<{}, State>{
 
                     let indicatorObj = {
                         goal: goal.goal,
+                        sdg: goal.goal.split('.')[0],
                         subgoal: subgoal.subgoal,
                         name: indicator,
                         data: dataArr
@@ -518,7 +519,7 @@ export class SiocVisual extends React.Component<{}, State>{
                                                     {
                                                         self.state.selectedIndicators.map((indicator: any) => {
                                                             return <div className="indicator">
-                                                                <h3><div className="sdg-icon sdg-3"></div><div className="sdg-title">{indicator}</div></h3>
+                                                                <h3><div className={`sdg-${self.state.allIndicators.find(ind => ind.name == indicator)?.sdg} sdg-icon`}></div><div className="sdg-title">{indicator}</div></h3>
 
                                                                 <div className="dashboard-table">
                                                                     <table>

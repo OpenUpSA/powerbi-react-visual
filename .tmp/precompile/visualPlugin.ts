@@ -5,8 +5,8 @@ import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualC
 import DialogConstructorOptions = powerbiVisualsApi.extensibility.visual.DialogConstructorOptions;
 var powerbiKey: any = "powerbi";
 var powerbi: any = window[powerbiKey];
-var siocVizD403F370313746EC8035E81E1183C5A7_DEBUG: IVisualPlugin = {
-    name: 'siocVizD403F370313746EC8035E81E1183C5A7_DEBUG',
+var siocVizD403F370313746EC8035E81E1183C5A7: IVisualPlugin = {
+    name: 'siocVizD403F370313746EC8035E81E1183C5A7',
     displayName: 'SiocViz',
     class: 'Visual',
     apiVersion: '5.3.0',
@@ -27,6 +27,6 @@ var siocVizD403F370313746EC8035E81E1183C5A7_DEBUG: IVisualPlugin = {
 if (typeof powerbi !== "undefined") {
     powerbi.visuals = powerbi.visuals || {};
     powerbi.visuals.plugins = powerbi.visuals.plugins || {};
-    powerbi.visuals.plugins["siocVizD403F370313746EC8035E81E1183C5A7_DEBUG"] = siocVizD403F370313746EC8035E81E1183C5A7_DEBUG;
+    powerbi.visuals.plugins["siocVizD403F370313746EC8035E81E1183C5A7"] = siocVizD403F370313746EC8035E81E1183C5A7;
 }
-export default siocVizD403F370313746EC8035E81E1183C5A7_DEBUG;
+export default siocVizD403F370313746EC8035E81E1183C5A7;
