@@ -18,6 +18,17 @@ npm i -g powerbi-visuals-tools@latest
 pbiviz start
 ```
 
+## Package Final Viz
+
+To package your final viz for use in production, use:
+
+```
+pbiviz package
+```
+
+The resulting files in the `dist` folder are importable in PBI.
+
+
 ## Read more
 
 See https://learn.microsoft.com/en-us/power-bi/developer/visuals/create-react-visual and https://learn.microsoft.com/en-us/power-bi/developer/visuals/environment-setup
