@@ -42,8 +42,8 @@ export class Visual implements IVisual {
                 tableData,
                 size,
                 goals: [],
-                data: [],
-                indicator: '',
+                allIndicators: [],
+                indicator: [],
                 openGoals: [],
                 openSubgoals: [],
                 districts: [],
@@ -51,7 +51,11 @@ export class Visual implements IVisual {
                 goalColors: [],
                 showLabels: true,
                 showTrends: true,
-                showTargets: true
+                showTargets: true,
+                mode: 'chart',
+                selectedIndicators: [],
+                currentChartIndicator: null,
+                currentChartData: [],
             });
 
         } else {

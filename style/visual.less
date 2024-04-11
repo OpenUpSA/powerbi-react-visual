@@ -1,20 +1,66 @@
+header {
+	display: flex;
+	margin-bottom: 1em;
+
+	.logo {
+		background-image: url('../assets/sioc-sdg-dashboard.png');
+		background-size: contain;
+		background-repeat: no-repeat;
+		width: 400px;
+		height: auto;
+		aspect-ratio: 953/136;
+	}
+
+	.header-left {
+		flex: 1;
+	}
+
+	.header-right {
+		padding-top: 1.2em;
+	}
+
+	.mode-label {
+		display: inline-block;
+		font-size: 12px;
+		margin: 0 0.5em 0 0;
+	}
+
+	.mode-btn {
+		background-color: rgba(244, 244, 244, 1);
+		padding: 0.5em 1em;
+		border-radius: 3px;
+		display: inline-block;
+		font-size: 12px;
+		margin: 0 0.5em 0 0;
+	}
+
+	.mode-btn.selected {
+		background-color: rgba(0, 127, 199, 1);
+		color: #fff;
+	}
+	
+}
+
+
+
+
+
 .dashboard-container {
 	display: flex;
 }
 
 .dashboard-menu {
 	flex: 0 0 25%;
-
-	
-
+	padding-bottom: 2em;
 }
 
 .dashboard-content {
 	flex: 1;
+	padding: 0 0 0 2em;
 
 	h2 {
 		margin-top: 0;
-		padding: 0 0 0 2em;
+		
 	}
 }
 
@@ -91,6 +137,77 @@
 	}
 
 	
+}
+
+.indicator h3 {
+	display: flex;
+}
+
+.sdg-icon {
+	width: 30px;
+	height: auto;
+	aspect-ratio: 1/1;
+	margin-right: 0.5em;
+	border-radius: 5px;
+	margin-right: 1em;
+	background-size: contain;
+	background-repeat: no-repeat;
+
+
+	&.sdg-3 {
+		background-image: url('../assets/SDG-3.svg');
+	}
+	&.sdg-4 {
+		background-image: url('../assets/SDG-4.svg');
+	}
+	&.sdg-8 {
+		background-image: url('../assets/SDG-8.svg');
+	}
+	&.sdg-13 {
+		background-image: url('../assets/SDG-13.svg');
+	}
+	&.sdg-17 {
+		background-image: url('../assets/SDG-17.svg');
+	}
+
+}
+
+.sdg-title {
+	flex: 1;	
+}
+
+.dashboard-table {
+	padding: 0;
+
+	table {
+		width: 100%;
+		font-size: 12px;
+
+		thead {
+			background: rgba(248, 248, 248, 1);
+
+			th {
+				padding: 0.5em;
+				text-align: center;
+			}
+
+			th:first-child {
+				text-align: left;
+			}
+
+		}
+
+		tbody {
+			td {
+				padding: 0.5em;
+				text-align: center;
+			}
+
+			td:first-child {
+				text-align: left;
+			}	
+		}
+	}
 }
 
 

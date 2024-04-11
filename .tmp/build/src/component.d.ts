@@ -6,8 +6,8 @@ export interface State {
     borderWidth?: number;
     loaded: boolean;
     goals: any[];
-    data: any[];
-    indicator: string;
+    allIndicators: any[];
+    indicator: any[];
     openGoals: any[];
     openSubgoals: any[];
     districts: any[];
@@ -16,6 +16,10 @@ export interface State {
     showLabels: boolean;
     showTrends: boolean;
     showTargets: boolean;
+    mode: string;
+    selectedIndicators: any[];
+    currentChartIndicator?: string;
+    currentChartData?: any[];
 }
 export declare const initialState: State;
 export declare class SiocVisual extends React.Component<{}, State> {
@@ -28,8 +32,9 @@ export declare class SiocVisual extends React.Component<{}, State> {
     componentDidMount(): void;
     processData(): void;
     toggleGoal(type: string, goal: string): void;
-    setIndicator(indicator: string): void;
+    setIndicator(indicatorName: string): void;
     colorLookup(district: string): any;
     getGoalColor(goal: string): any;
+    toggleIndicator: (e: any) => void;
     render(): React.JSX.Element;
 }

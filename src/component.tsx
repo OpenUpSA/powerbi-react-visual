@@ -1,5 +1,7 @@
 import * as React from "react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar } from 'recharts';
+import { Scrollbars } from 'rc-scrollbars';
+
 
 export interface State {
     tableData: object,
@@ -8,8 +10,8 @@ export interface State {
     borderWidth?: number,
     loaded: boolean,
     goals: any[],
-    data: any[],
-    indicator: string,
+    allIndicators: any[],
+    indicator: any[],
     openGoals: any[],
     openSubgoals: any[],
     districts: any[],
@@ -17,7 +19,11 @@ export interface State {
     goalColors: any[],
     showLabels: boolean,
     showTrends: boolean,
-    showTargets: boolean
+    showTargets: boolean,
+    mode: string,
+    selectedIndicators: any[],
+    currentChartIndicator?: string,
+    currentChartData?: any[],
 }
 
 export const initialState: State = {
@@ -25,8 +31,8 @@ export const initialState: State = {
     size: 200,
     loaded: false,
     goals: [],
-    data: [],
-    indicator: '',
+    allIndicators: [],
+    indicator: [],
     openGoals: [],
     openSubgoals: [],
     districts: [],
@@ -34,7 +40,11 @@ export const initialState: State = {
     goalColors: [],
     showLabels: true,
     showTrends: true,
-    showTargets: true
+    showTargets: true,
+    mode: 'table',
+    selectedIndicators: [],
+    currentChartIndicator: '',
+    currentChartData: [],
 }
 
 export class SiocVisual extends React.Component<{}, State>{
@@ -71,23 +81,23 @@ export class SiocVisual extends React.Component<{}, State>{
             if (tableData['rows'] && tableData['rows'].length > 0) {
                 clearInterval(loop);
                 self.setState({
-                    districtColors:[
-                        {district: 'JTG District', color: '#e91e63'},
-                        {district: 'Tsantsabane', color: '#9c27b0'},
-                        {district: 'Thabazimbi', color: '#3f51b5'},
-                        {district: 'Thabazimbi Dwaalboom', color: '#03a9f4'},
-                        {district: 'Gamagara', color: '#4caf50'}, 
-                        {district: 'Joe Morolong', color: '#ff9800'},
-                        {district: 'Ga-Segonyana', color: '#ff5722'}
+                    districtColors: [
+                        { district: 'JTG District', color: '#f2c265' },
+                        { district: 'Tsantsabane', color: '#425ce7' },
+                        { district: 'Thabazimbi', color: '#8f5b9b' },
+                        { district: 'Thabazimbi Dwaalboom', color: '#58b2b8' },
+                        { district: 'Gamagara', color: '#4caf50' },
+                        { district: 'Joe Morolong', color: '#ff9800' },
+                        { district: 'Ga-Segonyana', color: '#ff5722' }
                     ],
-                    
+
                     goalColors: [
-                        {goal: '3. Good Health and Well Being', color: '#4c9f38'},
-                        {goal: '4. Quality Education', color: '#c5192d'},
-                        {goal: '8. Decent Work and Economic Growth', color: '#007fc7'},
-                        {goal: '9. Industry Innovation and Infrastructure', color: '#fd6925'},
-                        {goal: '13. Climate Action', color: '#3f7e44'},
-                        {goal: '17. Partnerships for the goals', color: '#19486a'}
+                        { goal: '3. Good Health and Well Being', color: '#4c9f38' },
+                        { goal: '4. Quality Education', color: '#c5192d' },
+                        { goal: '8. Decent Work and Economic Growth', color: '#007fc7' },
+                        { goal: '9. Industry Innovation and Infrastructure', color: '#fd6925' },
+                        { goal: '13. Climate Action', color: '#3f7e44' },
+                        { goal: '17. Partnerships for the goals', color: '#19486a' }
                     ],
                     loaded: true
                 }, () => {
@@ -116,10 +126,10 @@ export class SiocVisual extends React.Component<{}, State>{
         });
 
         let goals = goalsArr.map(goal => {
-            return { 
+            return {
                 goal: goal,
                 color: "#ccc",
-                subgoals: [], 
+                subgoals: [],
             };
         });
 
@@ -141,7 +151,7 @@ export class SiocVisual extends React.Component<{}, State>{
             let number = goal['goal'].split('.')[0];
 
             subgoals.forEach((subgoal: any) => {
-                if(subgoal.split('.')[0] == number) {
+                if (subgoal.split('.')[0] == number) {
                     goal['subgoals'].push({
                         subgoal: subgoal,
                         indicators: []
@@ -149,15 +159,17 @@ export class SiocVisual extends React.Component<{}, State>{
                 }
             })
 
-          
+
         });
 
         // INDICATORS
 
+        let allIndicators = [];
+
         goals.forEach((goal: any) => {
             goal.subgoals.forEach((subgoal: any) => {
                 self.state.tableData['rows'].forEach((item: any) => {
-                    if(item[6] == subgoal.subgoal) {
+                    if (item[6] == subgoal.subgoal) {
                         subgoal.indicators.push(item[5]);
                     }
                 })
@@ -168,23 +180,119 @@ export class SiocVisual extends React.Component<{}, State>{
                 subgoal.indicators.sort((a: any, b: any) => {
                     return a.split('.')[1] - b.split('.')[1];
                 });
+
+
+                // INDICATOR DATA
+
+                subgoal.indicators.forEach((indicator: any) => {
+
+                    // get all data with this indicator
+                    let data = self.state.tableData['rows'].filter((item: any) => {
+                        return item[5] == indicator;
+                    });
+
+                    let dataArr = [];
+
+                    /*
+                    0: 0
+                    1: "Tsantsabane"
+                    2: "Percentage"
+                    3: "3. Good Health and Well Being"
+                    4: 207
+                    5: "3.3.2 Tuberculosis incidence per 100,000 population"
+                    6: "3.3 End the epidemics of AIDS, tuberculosis, and combat hepatitis, water-borne diseases and other communicable diseases"
+                    7: 2023
+                    8: "Baseline"
+                    */
+
+
+                    // get all the unique years
+                    let years = [...new Set(data.map((item: any) => {
+                        return item[7];
+                    }))];
+
+                    // sort years
+                    years.sort((a: any, b: any) => {
+                        return a - b;
+                    });
+
+                    // get all the unique districts
+                    let districts = [...new Set(data.map((item: any) => {
+                        return item[1];
+                    }))];
+
+                    // sort districts
+                    districts.sort((a: any, b: any) => {
+                        return a - b;
+                    });
+
+                    self.setState({
+                        districts: districts
+                    })
+
+                    // loop through years and districts and add data to array
+                    years.forEach((year: any) => {
+
+                        dataArr.push({
+                            year: year,
+                        });
+
+                    })
+
+
+                    districts.forEach((district: any) => {
+                        let districtData = data.filter((item: any) => {
+                            return item[1] == district;
+                        });
+
+                        districtData.forEach((item: any) => {
+                            dataArr.forEach((data: any) => {
+                                if (data.year == item[7]) {
+                                    data[district] = item[0];
+                                }
+                            })
+                        })
+
+                    })
+
+                    let indicatorObj = {
+                        goal: goal.goal,
+                        subgoal: subgoal.subgoal,
+                        name: indicator,
+                        data: dataArr
+                    }
+
+                    allIndicators.push(indicatorObj);
+
+                })
+
+
+                // Ok leave for tomorrow, but what I need to do is:
+
+
+
+
+
+
+
             })
         })
 
         self.setState({
-            goals: goals
+            goals: goals,
+            allIndicators: allIndicators
         })
-    
+
     }
 
     public toggleGoal(type: string, goal: string) {
         let self = this;
 
-        if(type == 'goal') {
+        if (type == 'goal') {
 
             let openGoals = self.state.openGoals;
 
-            if(openGoals.includes(goal)) {
+            if (openGoals.includes(goal)) {
                 openGoals = openGoals.filter((item: any) => {
                     return item != goal;
                 });
@@ -197,10 +305,10 @@ export class SiocVisual extends React.Component<{}, State>{
             })
 
         } else {
-                
+
             let openSubgoals = self.state.openSubgoals;
 
-            if(openSubgoals.includes(goal)) {
+            if (openSubgoals.includes(goal)) {
                 openSubgoals = openSubgoals.filter((item: any) => {
                     return item != goal;
                 });
@@ -215,87 +323,13 @@ export class SiocVisual extends React.Component<{}, State>{
         }
 
     }
-    
-    public setIndicator(indicator: string) {
+
+    public setIndicator(indicatorName: string) {
         let self = this;
 
-
-        // get all data with this indicator
-        let data = self.state.tableData['rows'].filter((item: any) => {
-            return item[5] == indicator;
-        });
-
-
-        let dataArr = [];
-
-        /*
-        0: 0
-        1: "Tsantsabane"
-        2: "Percentage"
-        3: "3. Good Health and Well Being"
-        4: 207
-        5: "3.3.2 Tuberculosis incidence per 100,000 population"
-        6: "3.3 End the epidemics of AIDS, tuberculosis, and combat hepatitis, water-borne diseases and other communicable diseases"
-        7: 2023
-        8: "Baseline"
-        */
-
-
-        // get all the unique years
-        let years = [...new Set(data.map((item: any) => {
-            return item[7];
-        }))];
-
-        // sort years
-        years.sort((a: any, b: any) => {
-            return a - b;
-        });
-
-        // get all the unique districts
-        let districts = [...new Set(data.map((item: any) => {
-            return item[1];
-        }))];
-
-        // sort districts
-        districts.sort((a: any, b: any) => {
-            return a - b;
-        });
-
         self.setState({
-            districts: districts
-        })
+            currentChartIndicator: indicatorName,
 
-        // loop through years and districts and add data to array
-        years.forEach((year: any) => {
-
-            dataArr.push({
-                year: year,
-            });
-
-        })
-
-
-        districts.forEach((district: any) => {
-            let districtData = data.filter((item: any) => {
-                return item[1] == district;
-            });
-
-            districtData.forEach((item: any) => {
-                dataArr.forEach((data: any) => {
-                    if(data.year == item[7]) {
-                        data[district] = item[0];
-                    }
-                })
-            })
-    
-        })
-
-
-        self.setState({
-            indicator: indicator,
-            data: dataArr,
-        }, () => {
-            console.log(self.state.data);
         })
     }
 
@@ -315,106 +349,226 @@ export class SiocVisual extends React.Component<{}, State>{
         return color ? color.color : '#000000';
     }
 
+    public toggleIndicator = (e: any) => {
+        let self = this;
+
+        let value = e.target.value;
+
+        let selectedIndicators = self.state.selectedIndicators;
+
+        if (selectedIndicators.includes(value)) {
+            selectedIndicators = selectedIndicators.filter((item: any) => {
+                return item != value;
+            });
+        } else {
+            selectedIndicators.push(value);
+        }
+
+        self.setState({
+            selectedIndicators: selectedIndicators
+        }, () => {
+            // console.log(self.state.selectedIndicators);
+        })
+
+
+
+    }
 
 
     render() {
 
         let self = this;
-        
 
-        return (<div className="dashboard-container">
-            <div className="dashboard-menu">
-                <div className="dashboard-menu-container">
-                    {
-                        self.state.goals.length > 0 ? (
-                            self.state.goals.map(goal => {
-                                return (<div className={self.state.openGoals.includes(goal.goal) ? 'goal open' : 'goal'}>
-                                    <div className={'goal-trigger'} style={{backgroundColor: this.getGoalColor(goal.goal)}} onClick={() => (this.toggleGoal('goal', goal.goal))}>{goal.goal}</div>
-                                    <div className="goal-content">
-                                        {
-                                            goal['subgoals'].map((subgoal: any) => {
-                                                return <div className={self.state.openSubgoals.includes(subgoal.subgoal) ? 'subgoal open' : 'subgoal'}>
-                                                    <div className="subgoal-trigger" onClick={() => this.toggleGoal('subgoal', subgoal.subgoal)}>{subgoal.subgoal.substring(0, 35) + '...'}</div>
-                                                    <div className="indicators">
-                                                        {
-                                                            subgoal.indicators.map((indicator: any) => {
-                                                                return <div className={self.state.indicator == indicator ? 'indicator selected' : 'indicator'} onClick={() => this.setIndicator(indicator)}>{indicator}</div>
-                                                            })
-                                                        }
-                                                    </div>
+       
+
+        return (
+
+            <>
+
+                <header>
+
+                    <div className="header-left">
+                        <div className="logo"></div>
+                    </div>
+                    <div className="header-right">
+                        <div className="mode-label">View As</div>
+                        <div className={self.state.mode == 'chart' ? 'mode-btn selected' : 'mode-btn'} onClick={() => self.setState({ mode: 'chart' })}>Chart</div>
+                        <div className={self.state.mode == 'table' ? 'mode-btn selected' : 'mode-btn'} onClick={() => self.setState({ mode: 'table' })}>Table</div>
+                    </div>
+
+
+                </header>
+
+
+                <div className="dashboard-container" style={{height: '90%'}}>
+                    <div className="dashboard-menu">
+                        <Scrollbars style={{ width: '100%', height: '100%' }}>
+                        <div className="dashboard-menu-container">
+                            {
+                                self.state.goals.length > 0 ? (
+                                    self.state.goals.map(goal => {
+                                        return (<div className={self.state.openGoals.includes(goal.goal) ? 'goal open' : 'goal'}>
+                                            <div className={'goal-trigger'} style={{ backgroundColor: this.getGoalColor(goal.goal) }} onClick={() => (this.toggleGoal('goal', goal.goal))}>{goal.goal}</div>
+                                            <div className="goal-content">
+                                                {
+                                                    goal['subgoals'].map((subgoal: any) => {
+                                                        return <div className={self.state.openSubgoals.includes(subgoal.subgoal) ? 'subgoal open' : 'subgoal'}>
+                                                            <div className="subgoal-trigger" onClick={() => this.toggleGoal('subgoal', subgoal.subgoal)}>
+                                                                {subgoal.subgoal.substring(0, 35) + '...'}
+                                                            </div>
+                                                            <div className="indicators">
+                                                                {
+                                                                    subgoal.indicators.map((indicator: any) => {
+                                                                        return <div className={self.state.currentChartIndicator == indicator ? 'indicator selected' : 'indicator'} onClick={() => this.setIndicator(indicator)}>
+                                                                            {
+                                                                                self.state.mode == 'table' &&
+                                                                                <input type="checkbox" value={indicator}
+                                                                                    checked={self.state.selectedIndicators.includes(indicator)}
+                                                                                    onChange={self.toggleIndicator}
+                                                                                ></input>
+                                                                            }
+                                                                            {indicator}</div>
+                                                                    })
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    })
+                                                }
+                                            </div>
+                                        </div>)
+                                    })
+                                ) : ''
+                            }
+                        </div>
+                        </Scrollbars>
+                    </div>
+                    <div className="dashboard-content">
+                        <Scrollbars style={{ width: '100%', height: '100%' }}>
+                        {(self.state.currentChartIndicator != '') ? (
+
+                            <>
+                                {
+                                    self.state.mode == 'chart' &&
+                                    <>
+                                        <h2>{self.state.currentChartIndicator}</h2>
+
+                                        <div className="toolbar">
+
+                                            <div className="toolbar-item">
+                                            </div>
+
+                                            {/* <div className="toolbar-item">
+                                                <div className="toolbar-item">
+                                                    <label>Targets</label>
+                                                    <input type="checkbox" id="showTargets" name="showTargets" checked={self.state.showTargets} onChange={() => self.setState({ showTargets: !self.state.showTargets })} />
                                                 </div>
-                                            })
-                                        }
-                                    </div>
-                                </div>)
-                            })
-                        ) : ''
-                    }
+                                                <div className="toolbar-item">
+                                                    <label>Trends</label>
+                                                    <input type="checkbox" id="showTrends" name="showTrends" checked={self.state.showTrends} onChange={() => self.setState({ showTrends: !self.state.showTrends })} />
+                                                </div>
+                                                <div className="toolbar-item">
+                                                    <label>Labels</label>
+                                                    <input type="checkbox" id="showLabels" name="showLabels" checked={self.state.showLabels} onChange={() => self.setState({ showLabels: !self.state.showLabels })} />
+                                                </div>
+                                            </div> */}
+
+
+                                        </div>
+                                    </>
+                                }
+                                {
+                                    (self.state.mode == 'chart' && self.state.currentChartIndicator != '') ?
+
+                                        <div className="dashboard-chart" style={{ width: '100%', height: 450 }}>
+                                            <ResponsiveContainer>
+
+                                                <BarChart
+                                                    width={700}
+                                                    height={500}
+                                                    data={self.state.allIndicators.find(ind => ind.name == self.state.currentChartIndicator)?.data}
+                                                    margin={{
+                                                        top: 5, right: 30, left: 20, bottom: 5,
+                                                    }}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" />
+                                                    <XAxis dataKey="year" />
+                                                    <YAxis />
+                                                    <Tooltip />
+                                                    <Legend />
+                                                    {
+                                                        self.state.districts.map((district: any) => {
+                                                            return <Bar
+                                                                dataKey={district}
+                                                                name={district}
+                                                                fill={this.colorLookup(district)}
+                                                            />
+                                                        })
+                                                    }
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                        :
+
+                                        <>
+
+                                            {
+                                                self.state.selectedIndicators.length > 0 &&
+
+                                                <>
+                                                    {
+                                                        self.state.selectedIndicators.map((indicator: any) => {
+                                                            return <div className="indicator">
+                                                                <h3><div className="sdg-icon sdg-3"></div><div className="sdg-title">{indicator}</div></h3>
+
+                                                                <div className="dashboard-table">
+                                                                    <table>
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Region</th>
+                                                                                {
+                                                                                    self.state.allIndicators.find(ind => ind.name == indicator)?.data.map((item: any) => {
+                                                                                        return <th>{item.year}</th>
+                                                                                    })
+                                                                                }
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {
+                                                                                self.state.districts.map((district: any) => {
+                                                                                    return <tr>
+                                                                                        <td>{district}</td>
+                                                                                        {
+                                                                                            self.state.allIndicators.find(ind => ind.name == indicator)?.data.map((item: any) => {
+                                                                                                return <td>{item[district]}</td>
+                                                                                            })
+                                                                                        }
+                                                                                    </tr>
+                                                                                })
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+
+                                                            </div>
+                                                        })
+                                                    }
+                                                </>
+
+
+                                            }
+
+
+
+                                        </>
+
+                                }
+
+                            </>
+                        ) : ''}
+                    </Scrollbars>
+                    </div>
                 </div>
-            </div>
-            <div className="dashboard-content">
-                {(self.state.indicator != '' && self.state.data.length > 0) ? (
-                    
-                    <>
-                        <h2>{self.state.indicator}</h2>
-
-                        <div className="toolbar">
-
-                            <div className="toolbar-item">
-                            </div>
-
-                            <div className="toolbar-item">
-                                <div className="toolbar-item">
-                                    <label>Targets</label>
-                                    <input type="checkbox" id="showTargets" name="showTargets" checked={self.state.showTargets} onChange={() => self.setState({showTargets: !self.state.showTargets})}/>
-                                </div>
-                                <div className="toolbar-item">
-                                    <label>Trends</label>
-                                    <input type="checkbox" id="showTrends" name="showTrends" checked={self.state.showTrends} onChange={() => self.setState({showTrends: !self.state.showTrends})}/>
-                                </div>
-                                <div className="toolbar-item">
-                                    <label>Labels</label>
-                                    <input type="checkbox" id="showLabels" name="showLabels" checked={self.state.showLabels} onChange={() => self.setState({showLabels: !self.state.showLabels})}/>
-                                </div>
-                            </div>
-                            
-                            
-                        </div>
-
-
-                        <div className="dashboard-chart" style={{ width: '100%', height: 450 }}>
-                        <ResponsiveContainer>
-                        <LineChart
-                            width={700}
-                            height={500}
-                            data={self.state.data}
-                            margin={{
-                                top: 5, right: 30, left: 20, bottom: 5,
-                            }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="year"/>
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-
-                                    {
-                                        self.state.districts.map((district: any) => {
-                                            return <Line 
-                                                dataKey={district}
-                                                name={district}
-                                                stroke={this.colorLookup(district)}
-                                                strokeWidth={2}
-                                            />
-                                        })
-                                    } 
-                            </LineChart>
-                        </ResponsiveContainer>
-                        </div>
-                    </>
-                ) : ''}
-            </div>
-        </div>
+            </>
         )
     }
 }
